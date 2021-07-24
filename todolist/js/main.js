@@ -3,11 +3,10 @@ import List from "./List.js";
 const service = new ListService();
 const getEle = (id) => document.getElementById(id);
 
-const render = (list) => {
+const renderToDo = (list) => {
  let content = "";
- list.forEach((item) => {
+ list.filter(task => task.complete === false).forEach((item) =>{
      content +=`
-      
           <li>
                ${item.text}
                <div>
@@ -25,7 +24,8 @@ const ListData = ()=>{
       service.callApi("demo","GET",null)
       .then((result) => {
           console.log(result.data);
-          render(result.data);
+          renderToDo(result.data);
+          renderCompleted(result.data);
       })
       .catch((error) => {
           console.log(error);
@@ -76,11 +76,12 @@ const list = [];
 const hoanthanh = (id) => {
     service.callApi(`demo/${id}`,"GET",null)
     .then((result) => {
-        // render(result.data.filter((complete) => complete.complete === false));
-        // render2(result.data.filter((complete) => complete.complete === true));
         console.log(result.data);
-        ListData();
-        // list.push(...result.data);
+        let data = {...result.data, complete : true}
+        service.callApi(`demo/${id}`,"PUT",data)
+         .then(() => {
+            ListData();
+         })
     })
     .catch((error) => {
         console.log(error);
@@ -88,9 +89,9 @@ const hoanthanh = (id) => {
 }
 window.hoanthanh = hoanthanh;   
 
-const render2 = (list) => {
+const renderCompleted = (list) => {
     let content = "";
-    list.forEach((item) => {
+    list.filter(task => task.complete === true).forEach((item)=>{
         content +=`
          
              <li>
@@ -106,7 +107,6 @@ const render2 = (list) => {
     });
     getEle("completed").innerHTML = content;
 }
-   render2();
 
 
 
